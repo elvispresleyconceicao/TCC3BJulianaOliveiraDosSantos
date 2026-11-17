@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7ff">
+  <title>Quiz de Tecnologia | Teste seus conhecimentos</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17213b;
+      --muted: #64708b;
+      --line: #e3e8f3;
+      --brand: #5149d8;
+      --brand-dark: #3d36b7;
+      --brand-soft: #eeedff;
+      --good: #177653;
+      --good-bg: #e8f7f0;
+      --bad: #b53e50;
+      --bad-bg: #fff0f1;
+      --surface: #ffffff;
+      --page: #f5f7ff;
+      --shadow: 0 24px 70px rgba(29, 42, 89, .12);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(108, 99, 255, .12), transparent 28rem),
+        radial-gradient(circle at 92% 90%, rgba(49, 174, 148, .10), transparent 25rem),
+        var(--page);
+    }
+    button { font: inherit; }
+    .site-header {
+      width: min(1100px, calc(100% - 40px));
+      margin: 0 auto;
+      min-height: 82px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; font-weight: 800; letter-spacing: -.03em; }
+    .brand-mark {
+      width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px;
+      background: var(--brand); color: #fff; font-size: 17px; box-shadow: 0 7px 18px rgba(81, 73, 216, .25);
+    }
+    .header-note { color: var(--muted); font-size: .9rem; }
+    main { width: min(1100px, calc(100% - 40px)); margin: 26px auto 64px; }
+    .hero { text-align: center; margin: 0 auto 28px; max-width: 690px; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px;
+      background: var(--brand-soft); color: var(--brand-dark); font-size: .76rem; font-weight: 800;
+      letter-spacing: .08em; text-transform: uppercase;
+    }
+    .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: #685ff2; }
+    h1 { margin: 15px 0 10px; font-size: clamp(2rem, 5vw, 3.4rem); letter-spacing: -.055em; line-height: 1.05; }
+    .hero p { color: var(--muted); margin: 0; font-size: 1.03rem; line-height: 1.65; }
+    .quiz-shell {
+      max-width: 780px; margin: 0 auto; background: var(--surface); border: 1px solid rgba(226, 231, 244, .9);
+      border-radius: 24px; box-shadow: var(--shadow); overflow: hidden;
+    }
+    .quiz-top { padding: 22px 28px 18px; border-bottom: 1px solid var(--line); }
+    .top-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .topic-label { color: var(--muted); font-size: .86rem; font-weight: 650; }
+    .question-count { background: #f2f4fa; color: #46516b; padding: 7px 11px; border-radius: 999px; font-size: .82rem; font-weight: 750; white-space: nowrap; }
+    .progress-track { height: 8px; border-radius: 99px; background: #edf0f7; overflow: hidden; }
+    .progress-fill { height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #5149d8, #857dff); transition: width .35s ease; }
+    .quiz-content { padding: 29px 34px 32px; }
+    .screen[hidden] { display: none !important; }
+    .start-screen, .result-screen { text-align: center; padding: 28px 10px 18px; }
+    .start-icon, .result-icon {
+      width: 74px; height: 74px; border-radius: 22px; margin: 0 auto 18px; display: grid; place-items: center;
+      background: var(--brand-soft); color: var(--brand); font-size: 2rem; font-weight: 850;
+    }
+    .start-screen h2, .result-screen h2 { margin: 0 0 10px; font-size: clamp(1.45rem, 3vw, 2rem); letter-spacing: -.035em; }
+    .start-screen p, .result-screen p { max-width: 510px; margin: 0 auto 24px; color: var(--muted); line-height: 1.65; }
+    .summary-chips { display: flex; justify-content: center; flex-wrap: wrap; gap: 9px; margin: 0 0 26px; }
+    .summary-chips span { padding: 8px 12px; border: 1px solid var(--line); border-radius: 999px; color: #4d5872; font-size: .82rem; font-weight: 650; }
+    .question-meta { color: var(--brand-dark); font-size: .78rem; font-weight: 850; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 12px; }
+    .question-title { margin: 0 0 23px; font-size: clamp(1.28rem, 3vw, 1.75rem); line-height: 1.35; letter-spacing: -.025em; }
+    .answers { display: grid; gap: 11px; }
+    .answer {
+      width: 100%; min-height: 58px; padding: 13px 16px; border: 1.5px solid var(--line); border-radius: 14px;
+      background: #fff; color: var(--ink); text-align: left; display: flex; align-items: center; gap: 13px;
+      cursor: pointer; transition: border-color .18s, background .18s, transform .18s, box-shadow .18s;
+    }
+    .answer:hover:not(:disabled) { border-color: #aaa5ff; background: #fbfaff; transform: translateY(-1px); box-shadow: 0 5px 14px rgba(50, 55, 120, .07); }
+    .answer:focus-visible, .primary-btn:focus-visible, .secondary-btn:focus-visible { outline: 3px solid rgba(81, 73, 216, .28); outline-offset: 3px; }
+    .answer:disabled { cursor: default; }
+    .answer-key { flex: 0 0 30px; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; background: #f1f3f9; color: #64708b; font-weight: 800; font-size: .82rem; }
+    .answer-text { line-height: 1.45; font-size: .95rem; }
+    .answer.is-correct { border-color: #7fc9a9; background: var(--good-bg); color: #135a40; }
+    .answer.is-correct .answer-key { background: #cceedd; color: var(--good); }
+    .answer.is-wrong { border-color: #efa1aa; background: var(--bad-bg); color: #8f2f3d; }
+    .answer.is-wrong .answer-key { background: #ffdadd; color: var(--bad); }
+    .feedback { margin-top: 17px; padding: 14px 16px; border-radius: 13px; line-height: 1.55; font-size: .92rem; }
+    .feedback.correct { background: var(--good-bg); color: #145c41; }
+    .feedback.incorrect { background: var(--bad-bg); color: #8f2f3d; }
+    .feedback strong { display: block; margin-bottom: 3px; }
+    .action-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-top: 24px; }
+    .score-note { color: var(--muted); font-size: .88rem; }
+    .primary-btn, .secondary-btn { border: 0; border-radius: 12px; min-height: 48px; padding: 0 20px; font-weight: 780; cursor: pointer; transition: transform .15s, background .15s; }
+    .primary-btn { color: white; background: var(--brand); box-shadow: 0 7px 16px rgba(81, 73, 216, .2); }
+    .primary-btn:hover { background: var(--brand-dark); transform: translateY(-1px); }
+    .primary-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .secondary-btn { color: var(--brand-dark); background: var(--brand-soft); }
+    .secondary-btn:hover { background: #e3e1ff; }
+    .result-score { font-size: clamp(3.2rem, 8vw, 5rem); line-height: 1; font-weight: 850; letter-spacing: -.07em; color: var(--brand); margin: 12px 0; }
+    .result-label { color: var(--muted); font-weight: 650; margin-bottom: 20px; }
+    .review { text-align: left; margin: 25px auto 0; max-width: 620px; }
+    .review h3 { font-size: 1rem; margin: 0 0 12px; }
+    .review-list { display: grid; gap: 8px; max-height: 290px; overflow: auto; padding-right: 5px; }
+    .review-item { border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; font-size: .85rem; line-height: 1.45; }
+    .review-item strong { display: block; margin-bottom: 4px; }
+    .review-item .right { color: var(--good); }
+    .review-item .missed { color: var(--bad); }
+    .site-footer { text-align: center; color: #7d879d; font-size: .82rem; margin: 22px auto 0; }
+    @media (max-width: 600px) {
+      .site-header { min-height: 68px; }
+      .header-note { display: none; }
+      main { margin-top: 18px; }
+      .hero { margin-bottom: 21px; }
+      .quiz-shell { border-radius: 19px; }
+      .quiz-top { padding: 18px 18px 15px; }
+      .quiz-content { padding: 22px 18px 24px; }
+      .top-row { margin-bottom: 12px; }
+      .action-row { align-items: stretch; flex-direction: column; }
+      .action-row .primary-btn { width: 100%; }
+      .score-note { text-align: center; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">Q</span><span>Quiz de Tecnologia</span></div>
+    <div class="header-note">Aprenda. Responda. Avance.</div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="page-title">
+      <span class="eyebrow"><span class="eyebrow-dot" aria-hidden="true"></span>Desafio de conhecimentos</span>
+      <h1 id="page-title">Teste o que você sabe</h1>
+      <p>Responda às questões sobre desenvolvimento web, ferramentas digitais e inteligência artificial. No final, confira sua pontuação e revise as respostas.</p>
+    </section>
+
+    <section class="quiz-shell" aria-label="Quiz interativo">
+      <div class="quiz-top" id="quiz-top" hidden>
+        <div class="top-row">
+          <span class="topic-label">Tecnologia e desenvolvimento</span>
+          <span class="question-count" id="question-count">Questão 1 de 12</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-label="Progresso do quiz" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="progress-track">
+          <div class="progress-fill" id="progress-fill"></div>
+        </div>
+      </div>
+
+      <div class="quiz-content">
+        <section class="screen start-screen" id="start-screen">
+          <div class="start-icon" aria-hidden="true">?</div>
+          <h2>Pronto para começar?</h2>
+          <p>São 12 perguntas de múltipla escolha. Escolha uma alternativa por vez; você verá na hora se acertou e uma explicação curta.</p>
+          <div class="summary-chips" aria-label="Informações do quiz">
+            <span>12 questões</span><span>Uma resposta por questão</span><span>Resultado ao final</span>
+          </div>
+          <button class="primary-btn" id="start-button" type="button">Começar quiz</button>
+        </section>
+
+        <section class="screen" id="question-screen" hidden aria-live="polite">
+          <div class="question-meta" id="question-topic">HTML</div>
+          <h2 class="question-title" id="question-title"></h2>
+          <div class="answers" id="answers" role="group" aria-label="Alternativas"></div>
+          <div class="feedback" id="feedback" hidden></div>
+          <div class="action-row">
+            <span class="score-note" id="score-note">Pontuação: 0</span>
+            <button class="primary-btn" id="next-button" type="button" disabled>Conferir resposta</button>
+          </div>
+        </section>
+
+        <section class="screen result-screen" id="result-screen" hidden>
+          <div class="result-icon" aria-hidden="true">✓</div>
+          <h2 id="result-title">Quiz concluído!</h2>
+          <div class="result-score" id="result-score">0/12</div>
+          <div class="result-label" id="result-label"></div>
+          <p id="result-message"></p>
+          <button class="secondary-btn" id="restart-button" type="button">Refazer quiz</button>
+          <div class="review" aria-label="Revisão das respostas">
+            <h3>Revisão das questões</h3>
+            <div class="review-list" id="review-list"></div>
+          </div>
+        </section>
+      </div>
+    </section>
+    <p class="site-footer">Quiz educativo • Feito para estudar no seu ritmo</p>
+  </main>
+
+  <script>
+    'use strict';
+    const questions = [
+      {
+        topic: 'HTML',
+        question: 'Qual é a função principal do HTML em uma página web?',
+        options: ['Definir a estrutura e organizar o conteúdo', 'Controlar sozinho a lógica de um programa', 'Gerenciar o banco de dados do site', 'Criptografar automaticamente todas as informações'],
+        answer: 0,
+        explanation: 'HTML é uma linguagem de marcação: estrutura o conteúdo e informa ao navegador como organizá-lo.'
+      },
+      {
+        topic: 'HTML',
+        question: 'Qual elemento HTML contém o conteúdo visível de uma página?',
+        options: ['<head>', '<body>', '<meta>', '<title>'],
+        answer: 1,
+        explanation: 'O conteúdo exibido ao usuário fica dentro do elemento <body>.'
+      },
+      {
+        topic: 'CSS',
+        question: 'Para que o CSS é usado principalmente?',
+        options: ['Para estruturar tabelas relacionais', 'Para definir o visual e o layout da página', 'Para substituir o HTML', 'Para hospedar arquivos na nuvem'],
+        answer: 1,
+        explanation: 'CSS controla a apresentação visual, como cores, fontes, espaçamentos e posicionamento.'
+      },
+      {
+        topic: 'SQL',
+        question: 'Qual comando SQL é usado para consultar e extrair dados?',
+        options: ['CREATE', 'GRANT', 'SELECT', 'COMMIT'],
+        answer: 2,
+        explanation: 'SELECT é o comando de consulta da sublinguagem DQL.'
+      },
+      {
+        topic: 'JavaScript',
+        question: 'Qual afirmação sobre let e const está correta?',
+        options: ['São usadas para declarar variáveis com escopo de bloco', 'Só podem ser usadas dentro de arquivos CSS', 'Criam tabelas em um banco SQL', 'São atributos obrigatórios de uma tag HTML'],
+        answer: 0,
+        explanation: 'let e const declaram variáveis com escopo de bloco; const não pode ser reatribuída.'
+      },
+      {
+        topic: 'XAMPP',
+        question: 'Qual conjunto reúne componentes comuns do XAMPP?',
+        options: ['Windows, Android, macOS e Python', 'Apache, MariaDB, PHP e Perl', 'HTML, CSS, Git e GitHub', 'Excel, Word, PowerPoint e OneDrive'],
+        answer: 1,
+        explanation: 'XAMPP reúne ferramentas para um ambiente local, incluindo Apache, MariaDB, PHP e Perl.'
+      },
+      {
+        topic: 'APIs',
+        question: 'Qual é o papel de uma API?',
+        options: ['Permitir a comunicação e a integração entre sistemas', 'Formatar automaticamente um documento Word', 'Substituir todo o sistema operacional', 'Aumentar a resolução de uma imagem'],
+        answer: 0,
+        explanation: 'Uma API define formas para que aplicações ou serviços troquem dados e solicitem funcionalidades.'
+      },
+      {
+        topic: 'UI e UX',
+        question: 'Qual alternativa descreve melhor a diferença entre UX e UI?',
+        options: ['UX trata da experiência de uso; UI, da interface com que a pessoa interage', 'UX é uma linguagem de programação; UI é um banco de dados', 'UX cria servidores; UI hospeda sites', 'UX e UI significam exatamente a mesma coisa'],
+        answer: 0,
+        explanation: 'UX se concentra na experiência e facilidade de uso; UI, nos elementos visuais e interativos da interface.'
+      },
+      {
+        topic: 'Excel',
+        question: 'Para que servem as tabelas dinâmicas no Excel?',
+        options: ['Para resumir, analisar e explorar conjuntos de dados', 'Para criar páginas HTML automaticamente', 'Para controlar versões de código', 'Para substituir fórmulas e funções'],
+        answer: 0,
+        explanation: 'Tabelas dinâmicas ajudam a resumir e explorar dados sem precisar reorganizar manualmente toda a planilha.'
+      },
+      {
+        topic: 'Git e GitHub',
+        question: 'Qual é a diferença essencial entre Git e GitHub?',
+        options: ['Git controla versões; GitHub hospeda projetos Git e facilita a colaboração', 'Git é uma planilha; GitHub é um editor de texto', 'Git é uma linguagem de marcação; GitHub é um navegador', 'São nomes diferentes para o mesmo programa'],
+        answer: 0,
+        explanation: 'Git registra o histórico de versões. GitHub é um serviço web para hospedar projetos Git e colaborar.'
+      },
+      {
+        topic: 'Inteligência artificial',
+        question: 'O que permite que sistemas de aprendizado de máquina melhorem seu desempenho?',
+        options: ['A análise de dados por algoritmos', 'A troca automática de CSS por HTML', 'O uso exclusivo de comandos de impressão', 'A remoção de todo histórico do sistema'],
+        answer: 0,
+        explanation: 'Algoritmos processam dados e identificam padrões; mais dados relevantes podem ajudar o sistema a aprender.'
+      },
+      {
+        topic: 'VS Code',
+        question: 'O que o IntelliSense oferece no VS Code?',
+        options: ['Sugestões inteligentes e autocompletar código', 'Hospedagem de banco de dados na nuvem', 'Edição de planilhas do Excel', 'Criação automática de redes móveis 5G'],
+        answer: 0,
+        explanation: 'IntelliSense ajuda a escrever código com sugestões contextuais, autocompletar e informações sobre símbolos.'
+      }
+    ];
+
+    const $ = (selector) => document.querySelector(selector);
+    const startScreen = $('#start-screen');
+    const questionScreen = $('#question-screen');
+    const resultScreen = $('#result-screen');
+    const quizTop = $('#quiz-top');
+    const answersBox = $('#answers');
+    const feedbackBox = $('#feedback');
+    const nextButton = $('#next-button');
+    const progressTrack = $('#progress-track');
+    const progressFill = $('#progress-fill');
+    let current = 0;
+    let score = 0;
+    let selected = null;
+    let hasAnswered = false;
+    let results = [];
+
+    function showScreen(screen) {
+      [startScreen, questionScreen, resultScreen].forEach((item) => { item.hidden = item !== screen; });
+      quizTop.hidden = screen === startScreen || screen === resultScreen;
+    }
+
+    function renderQuestion() {
+      const item = questions[current];
+      selected = null;
+      hasAnswered = false;
+      $('#question-topic').textContent = item.topic;
+      $('#question-title').textContent = item.question;
+      $('#question-count').textContent = `Questão ${current + 1} de ${questions.length}`;
+      $('#score-note').textContent = `Pontuação: ${score}`;
+      progressFill.style.width = `${(current / questions.length) * 100}%`;
+      progressTrack.setAttribute('aria-valuenow', String(current));
+      feedbackBox.hidden = true;
+      feedbackBox.className = 'feedback';
+      nextButton.disabled = true;
+      nextButton.textContent = 'Conferir resposta';
+      answersBox.replaceChildren();
+
+      item.options.forEach((option, index) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'answer';
+        button.setAttribute('aria-pressed', 'false');
+        const key = document.createElement('span');
+        key.className = 'answer-key';
+        key.setAttribute('aria-hidden', 'true');
+        key.textContent = String.fromCharCode(65 + index);
+        const label = document.createElement('span');
+        label.className = 'answer-text';
+        label.textContent = option;
+        button.append(key, label);
+        button.addEventListener('click', () => selectAnswer(index));
+        answersBox.append(button);
+      });
+      showScreen(questionScreen);
+    }
+
+    function selectAnswer(index) {
+      if (hasAnswered) return;
+      selected = index;
+      [...answersBox.children].forEach((button, i) => {
+        button.setAttribute('aria-pressed', String(i === index));
+        button.classList.toggle('selected', i === index);
+      });
+      nextButton.disabled = false;
+      nextButton.textContent = 'Conferir resposta';
+    }
+
+    function submitAnswer() {
+      if (selected === null || hasAnswered) return;
+      hasAnswered = true;
+      const item = questions[current];
+      const correct = selected === item.answer;
+      if (correct) score += 1;
+      results.push({ question: item.question, chosen: item.options[selected], correctAnswer: item.options[item.answer], correct });
+      [...answersBox.children].forEach((button, i) => {
+        button.disabled = true;
+        if (i === item.answer) button.classList.add('is-correct');
+        else if (i === selected) button.classList.add('is-wrong');
+      });
+      feedbackBox.hidden = false;
+      feedbackBox.classList.add(correct ? 'correct' : 'incorrect');
+      feedbackBox.innerHTML = `<strong>${correct ? 'Resposta correta!' : 'Quase! Veja a resposta certa.'}</strong>${item.explanation}`;
+      $('#score-note').textContent = `Pontuação: ${score}`;
+      progressFill.style.width = `${((current + 1) / questions.length) * 100}%`;
+      progressTrack.setAttribute('aria-valuenow', String(current + 1));
+      nextButton.textContent = current === questions.length - 1 ? 'Ver resultado' : 'Próxima questão';
+      nextButton.focus();
+    }
+
+    function finishQuiz() {
+      showScreen(resultScreen);
+      const percent = Math.round((score / questions.length) * 100);
+      $('#result-score').textContent = `${score}/${questions.length}`;
+      $('#result-label').textContent = `${percent}% de acertos`;
+      $('#result-title').textContent = score === questions.length ? 'Excelente resultado!' : score >= 8 ? 'Muito bem!' : 'Quiz concluído!';
+      $('#result-message').textContent = score >= 10
+        ? 'Você demonstrou ótimo domínio dos conceitos. Continue praticando para manter o ritmo.'
+        : score >= 6
+          ? 'Bom trabalho. Revise os pontos abaixo e tente novamente para melhorar sua pontuação.'
+          : 'Cada tentativa é uma oportunidade de aprender. Confira as explicações e faça uma nova rodada.';
+      const reviewList = $('#review-list');
+      reviewList.replaceChildren();
+      results.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'review-item';
+        const title = document.createElement('strong');
+        title.textContent = `${index + 1}. ${item.question}`;
+        const answer = document.createElement('span');
+        answer.className = item.correct ? 'right' : 'missed';
+        answer.textContent = item.correct ? `Sua resposta: ${item.chosen}` : `Sua resposta: ${item.chosen} • Correta: ${item.correctAnswer}`;
+        row.append(title, answer);
+        reviewList.append(row);
+      });
+      progressFill.style.width = '100%';
+      progressTrack.setAttribute('aria-valuenow', String(questions.length));
+    }
+
+    $('#start-button').addEventListener('click', () => {
+      current = 0; score = 0; results = [];
+      renderQuestion();
+    });
+
+    nextButton.addEventListener('click', () => {
+      if (!hasAnswered) { submitAnswer(); return; }
+      if (current < questions.length - 1) { current += 1; renderQuestion(); }
+      else finishQuiz();
+    });
+
+    $('#restart-button').addEventListener('click', () => {
+      current = 0; score = 0; results = [];
+      renderQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  </script>
+</body>
+</html>
